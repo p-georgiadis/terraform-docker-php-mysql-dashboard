@@ -16,9 +16,6 @@ terraform_practice/
 ├── modules/                 # Directory containing all modular components of the infrastructure
 │   ├── db/                 # MySQL database module configuration
 │   │   ├── data/          # MySQL persistent data directory (managed by Docker)
-│   │   │   ├── auto.cnf   # MySQL auto-generated configuration
-│   │   │   ├── ca-key.pem # SSL/TLS certificates for secure connections
-│   │   │   ├── ca.pem     # Certificate authority file
 │   │   │   └── ...        # Other MySQL system and data files
 │   │   ├── main.tf        # Main database container configuration
 │   │   ├── outputs.tf     # Database output variables (container ID, etc.)
