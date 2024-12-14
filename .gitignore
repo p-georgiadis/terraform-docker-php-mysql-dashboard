@@ -1,0 +1,42 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# WebStorm specific
+.idea/
+*.iml
+*.iws
+.idea_modules/
+out/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# MySQL data directory (since it's managed by Docker)
+modules/db/data/*
+
+# Local environment
+.env
+*.log
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude tfvars files that may contain sensitive data
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Include tfvars files that are part of the example
+!example.tfvars
+!terraform.tfvars
+
+# Backup files
+*.bak
+*.backup

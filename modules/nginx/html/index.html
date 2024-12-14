@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Lab Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .container-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .bg-gradient {
+            background: linear-gradient(135deg, #1a1c2c 0%, #2a3150 100%);
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(66, 153, 225, 0.5);
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .container-status {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient min-h-screen text-gray-100">
+<div class="container mx-auto px-4 py-8">
+    <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold mb-4">Terraform Infrastructure Dashboard</h1>
+        <p class="text-xl text-blue-300">Docker Container Management & Database Interface</p>
+    </header>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- MySQL Container -->
+        <div class="container-card glow">
+            <h2 class="text-2xl font-bold mb-4 text-blue-400">MySQL Database</h2>
+            <div class="space-y-2">
+                <p><span class="text-gray-400">Container Name:</span> mysql_db</p>
+                <p><span class="text-gray-400">Port:</span> 3306</p>
+                <p><span class="text-gray-400">Status:</span>
+                    <span class="status-badge bg-green-500">Running</span>
+                </p>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Database Test</h3>
+                    <div class="space-y-2">
+                        <button onclick="testConnection()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                            Test Connection
+                        </button>
+                        <div id="dbStatus" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nginx Proxy -->
+        <div class="container-card glow">
+            <h2 class="text-2xl font-bold mb-4 text-purple-400">Nginx Proxy</h2>
+            <div class="space-y-2">
+                <p><span class="text-gray-400">Container Name:</span> nginx_proxy</p>
+                <p><span class="text-gray-400">Port:</span> 8080</p>
+                <p><span class="text-gray-400">Status:</span>
+                    <span class="status-badge bg-green-500">Running</span>
+                </p>
+                <div class="mt-4">
+                    <button onclick="window.location.href='http://localhost:8080'" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">
+                        Open Nginx
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web Server -->
+        <div class="container-card glow">
+            <h2 class="text-2xl font-bold mb-4 text-green-400">Web Server</h2>
+            <div class="space-y-2">
+                <p><span class="text-gray-400">Container Name:</span> web_server</p>
+                <p><span class="text-gray-400">Image:</span> nginx:alpine</p>
+                <p><span class="text-gray-400">Status:</span>
+                    <span class="status-badge bg-green-500">Running</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Operations Section -->
+    <div class="mt-12 container-card glow">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-400">Database Operations</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Create Table Form -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-semibold">Create New Table</h3>
+                <div class="space-y-2">
+                    <input type="text" id="tableName" placeholder="Table Name"
+                           class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white">
+                    <button onclick="createTable()"
+                            class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                        Create Table
+                    </button>
+                </div>
+            </div>
+
+            <!-- Query Execution -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-semibold">Execute Query</h3>
+                <div class="space-y-2">
+                        <textarea id="queryInput" rows="3" placeholder="Enter SQL Query"
+                                  class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-700 text-white"></textarea>
+                    <button onclick="executeQuery()"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Execute Query
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="queryResult" class="mt-6 p-4 bg-gray-800 rounded"></div>
+    </div>
+</div>
+
+<script>
+    async function testConnection() {
+        const statusDiv = document.getElementById('dbStatus');
+        try {
+            const response = await fetch('test-connection.php');
+            const data = await response.json();
+            statusDiv.innerHTML = `<span class="text-green-400">✓ ${data.message}</span>`;
+        } catch (error) {
+            statusDiv.innerHTML = `<span class="text-red-400">✗ Connection failed</span>`;
+        }
+    }
+
+    async function createTable() {
+        const tableName = document.getElementById('tableName').value;
+        try {
+            const response = await fetch('create-table.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tableName }),
+            });
+            const data = await response.json();
+            alert(data.message);
+        } catch (error) {
+            alert('Failed to create table');
+        }
+    }
+
+    async function executeQuery() {
+        const query = document.getElementById('queryInput').value;
+        const resultDiv = document.getElementById('queryResult');
+        try {
+            const response = await fetch('execute-query.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query }),
+            });
+            const data = await response.json();
+            console.log('Response:', data); // Add this line for debugging
+
+            if (data.success) {
+                resultDiv.innerHTML = `<pre class="text-green-400">${JSON.stringify(data.result, null, 2)}</pre>`;
+            } else {
+                resultDiv.innerHTML = `<pre class="text-red-400">Error: ${data.error}</pre>`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            resultDiv.innerHTML = `<pre class="text-red-400">Query execution failed: ${error.message}</pre>`;
+        }
+    }
+</script>
+</body>
+</html>
