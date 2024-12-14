@@ -146,7 +146,7 @@ terraform destroy
 
 1. **403 Forbidden Error**:
    - Check file permissions in the nginx/html directory
-   - Ensure files are owned by the correct user: `chown -R panog:panog modules/nginx/html/*`
+   - Ensure files are owned by the correct user: `chown -R "${USER}":"${USER}" modules/nginx/html/*`
 
 2. **Database Connection Failed**:
    - Verify MySQL container is running: `docker ps`
